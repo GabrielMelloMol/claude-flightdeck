@@ -1,5 +1,9 @@
 # Changelog
 
+## Fork GabrielMelloMol (pt-BR)
+
+- Os textos do painel, da linha de status e do comando /flightdeck estão em português do Brasil.
+
 ## 0.4.0
 
 - The main box shows the time left until each rate-limit window resets (`5h ▰▱▱▱▱ 19% ↻3h10m`), from the `resetsAt` the session already reports. Below 56 columns the gauges stay as they were. ([#3](https://github.com/scasella/claude-flightdeck/pull/3), thanks @vihrea1337)
