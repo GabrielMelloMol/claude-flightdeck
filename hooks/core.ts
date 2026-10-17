@@ -225,8 +225,8 @@ export const fmtTimer = (ms: number) => {
 
 export const fmtClock = (ms: number) => (ms > 0 ? new Date(ms).toTimeString().slice(0, 8) : '--:--:--')
 
-/** `1 error`, `2 errors`. */
-export const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`
+/** `1 erro`, `2 erros`; an irregular plural is passed as `many` (`1 edição`, `2 edições`). */
+export const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`
 
 export const fmtUsd = (n: number) => (n >= 100 ? `$${Math.round(n)}` : `$${n.toFixed(2)}`)
 
@@ -378,6 +378,15 @@ export const afterCall = (t: Turn, c: { inSubagent: boolean; hasFailed: boolean;
 export const momentOf = (t: Pick<Turn, 'edits' | 'errorStreak'>): Moment =>
   t.errorStreak >= 2 ? 'error repeats' : t.edits === 0 ? 'before a plan' : 'before done'
 
+// How stored values read on the pane, in Portuguese; the stored values themselves stay as they are.
+export const MOMENT_LABEL: Record<Moment, string> = {
+  'before a plan': 'antes do plano',
+  'error repeats': 'erro repetido',
+  'before done': 'antes de concluir',
+}
+export const STATUS_LABEL: Record<string, string> = { running: 'rodando', done: 'pronto', stopped: 'parado', failed: 'falhou' }
+export const EFFORT_LABEL: Record<string, string> = { low: 'baixo', medium: 'médio', high: 'alto', xhigh: 'muito alto', max: 'máximo' }
+
 export const startConsult = (a: Architect, c: { id: string; at: number; moment: Moment; via: string }): Architect =>
   a.consults.some(x => x.id === c.id) ? a : { ...a, consults: [...a.consults, { ...c, endAt: null }].slice(-40) }
 
@@ -497,7 +506,7 @@ export const promptLine = (text: string): { who: string; text: string } => {
   const tag = /^\s*<([a-z][\w-]*)/i.exec(text)?.[1]
   if (!tag) return { who: 'you', text: shorten(text, 70) }
   const from = /\bfrom="([^"]+)"/.exec(text)?.[1]
-  return { who: 'engine', text: shorten(`${tag.replace(/[-_]/g, ' ')}${from ? ` from ${from.slice(0, 8)}` : ''}`, 70) }
+  return { who: 'engine', text: shorten(`${tag.replace(/[-_]/g, ' ')}${from ? ` de ${from.slice(0, 8)}` : ''}`, 70) }
 }
 
 /**
