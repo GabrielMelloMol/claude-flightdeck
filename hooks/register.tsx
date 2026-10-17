@@ -223,7 +223,7 @@ export const register: Register = (on, options) => {
   on('session.start', async ($, e, next) => {
     await $.command.register({
       name: 'flightdeck',
-      description: 'Flightdeck, the live agent dashboard: open, close, reset, or set the layout',
+      description: 'Flightdeck, o painel ao vivo dos agentes: abrir, fechar, zerar ou mudar o layout',
       argumentHint: '[open|close|reset|layout auto|compact|wide|mini]',
     })
     await migrate($)
@@ -256,23 +256,23 @@ export const register: Register = (on, options) => {
     const [verb = 'open', arg = ''] = e.args.trim().split(/\s+/)
     if (verb === 'close') {
       await $.ui.close({ id: PANE })
-      return { text: 'Flightdeck closed.' }
+      return { text: 'Flightdeck fechado.' }
     }
     if (verb === 'reset') {
       await resetAll($)
       await refreshStatus($, cfg)
-      return { text: 'Flightdeck reset.' }
+      return { text: 'Flightdeck zerado.' }
     }
     if (verb === 'layout') {
       const layout: Layout | null = arg === 'compact' || arg === 'wide' || arg === 'auto' || arg === 'mini' ? arg : null
-      if (!layout) return { text: 'Usage: /flightdeck layout auto|compact|wide|mini' }
+      if (!layout) return { text: 'Uso: /flightdeck layout auto|compact|wide|mini' }
       await update($, view, v => ({ ...normalize(DEFAULT_VIEW, v), layout }))
       const opened = await openPane($)
-      return { text: opened.isPlaced ? `Flightdeck layout: ${layout}.` : `Layout set to ${layout}; the pane is not shown yet: ${opened.reason}` }
+      return { text: opened.isPlaced ? `Layout do Flightdeck: ${layout}.` : `Layout mudado para ${layout}; o painel ainda não aparece: ${opened.reason}` }
     }
     const opened = await openPane($)
-    if (!opened.isPlaced) return { text: `Flightdeck is not shown yet: ${opened.reason}` }
-    return { text: 'Flightdeck opened. Focus it with ctrl+x tab; 1-6 expand cards, f/s/o open the gate rows.' }
+    if (!opened.isPlaced) return { text: `O Flightdeck ainda não aparece: ${opened.reason}` }
+    return { text: 'Flightdeck aberto. Para focar: ctrl+x tab; 1-6 abrem os cards, f/s/o abrem as linhas de permissões.' }
   })
 
   on('classic.UserPromptSubmit', async ($, e, next) => {
