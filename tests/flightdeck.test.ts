@@ -244,10 +244,10 @@ test('a fresh session draws on every surface and width, empty panels hidden', as
   for (const surface of ['terminal', 'desktop', 'vscode', 'mobile'] as const) {
     for (const cols of [40, 60, 86, 120]) {
       const ui = await $.ui.mount({ ...pane(cols), surface })
-      expect(await ui.find({ text: /· main$/ })).toBeDefined()
-      expect(await ui.find({ text: /session log/ })).toBeDefined()
-      expect(await ui.find({ text: /agents ·/ })).toBeUndefined() // no subagents: no agents panel
-      expect(await ui.find({ text: /permissions/ })).toBeUndefined() // no checks yet: no gate panel
+      expect(await ui.find({ text: /· principal$/ })).toBeDefined()
+      expect(await ui.find({ text: /registro da sessão/ })).toBeDefined()
+      expect(await ui.find({ text: /agentes ·/ })).toBeUndefined() // no subagents: no agents panel
+      expect(await ui.find({ text: /permissões/ })).toBeUndefined() // no checks yet: no gate panel
       await ui.unmount()
     }
   }
@@ -265,9 +265,9 @@ test('inline above the prompt, the pane is a summary of at most 8 rows', async (
     const ui = await $.ui.mount({ ...pane(80), props: { ...pane(80).props, placement: 'inline' as const }, surface })
     const root = (await ui.drawn()) as { children?: unknown[] }
     expect((root.children ?? []).filter(Boolean).length <= 8).toBe(true)
-    expect(await ui.find({ text: /\+2 more agents/ })).toBeDefined()
-    expect(await ui.find({ text: /1 allowed/ })).toBeDefined()
-    expect(await ui.find({ text: /session log/ })).toBeUndefined()
+    expect(await ui.find({ text: /\+2 agentes a mais/ })).toBeDefined()
+    expect(await ui.find({ text: /1 permitido/ })).toBeDefined()
+    expect(await ui.find({ text: /registro da sessão/ })).toBeUndefined()
     await ui.unmount()
   }
 })
@@ -287,7 +287,7 @@ test('/clear starts the pane fresh', async ($, on) => {
 test('colours come from the theme by default, raw hex only when asked', async ($, on) => {
   engine(on)
   const ui = await $.ui.mount({ ...pane(64), surface: 'terminal' })
-  const title = await ui.find({ text: /· main$/ })
+  const title = await ui.find({ text: /· principal$/ })
   expect(title?.props.color).toBe('claude')
   await ui.unmount()
 })
@@ -295,7 +295,7 @@ test('colours come from the theme by default, raw hex only when asked', async ($
 test('pastel keeps the fixed dark-terminal colours', { options: { palette: 'pastel' } }, async ($, on) => {
   engine(on)
   const ui = await $.ui.mount({ ...pane(64), surface: 'terminal' })
-  expect((await ui.find({ text: /· main$/ }))?.props.color).toBe('#7dd3fc')
+  expect((await ui.find({ text: /· principal$/ }))?.props.color).toBe('#7dd3fc')
   await ui.unmount()
 })
 
@@ -338,13 +338,13 @@ test('the server-side advisor is read from assistant rows: consulting, then on c
       .catch(() => undefined) // the test has no transcript to store rows in
   await row([{ type: 'server_tool_use', id: 'srv1', name: 'advisor', input: {} }])
   const mid = await $.ui.mount({ ...pane(64), surface: 'terminal' })
-  expect(await mid.find({ text: /ARCHITECT · advising/ })).toBeDefined()
-  expect(await mid.find({ text: /◆ before a plan/ })).toBeDefined()
+  expect(await mid.find({ text: /ARCHITECT · aconselhando/ })).toBeDefined()
+  expect(await mid.find({ text: /◆ antes do plano/ })).toBeDefined()
   await mid.unmount()
 
   await row([{ type: 'advisor_tool_result', tool_use_id: 'srv1', content: { type: 'advisor_redacted_result' } }])
   const after = await $.ui.mount({ ...pane(64), surface: 'terminal' })
-  expect(await after.find({ text: /ARCHITECT · on call/ })).toBeDefined()
+  expect(await after.find({ text: /ARCHITECT · de plantão/ })).toBeDefined()
   expect(await after.find({ text: /^1$/ })).toBeDefined()
   await after.unmount()
 })
@@ -355,8 +355,8 @@ test('the gate strip fills from checks and a row opens its redacted drill-down',
   await $.tool.check({ tool: 'Read', input: { file_path: '/a/b.ts' }, tool_use_id: 'k1' })
   await $.tool.check({ tool: 'Bash', input: { command: 'curl -H "Authorization: Bearer abcdefgh12345" api' }, tool_use_id: 'k2' })
   const ui = await $.ui.mount({ ...pane(64), surface: 'terminal' })
-  expect(await ui.find({ text: /2 checks/ })).toBeDefined()
-  expect(await ui.find({ text: /1 pending/ })).toBeDefined()
+  expect(await ui.find({ text: /2 checagens/ })).toBeDefined()
+  expect(await ui.find({ text: /1 pendente/ })).toBeDefined()
   await ui.press({ key: 'gate-shell' })
   expect(await ui.find({ text: /Authorization: Bearer •••/ })).toBeDefined()
   expect(await ui.find({ text: /abcdefgh12345/ })).toBeUndefined()
@@ -370,9 +370,9 @@ test('config changes labels, hides panels and turns the moments off', { options:
   await $.turn.start({ text: 'review it', turnId: 'T3' })
   await $.agent.spawn(spawn('fable-advisor:fable-advisor', 'final review'))
   const ui = await $.ui.mount({ ...pane(64), surface: 'terminal' })
-  expect(await ui.find({ text: /REVIEWER · advising/ })).toBeDefined()
-  expect(await ui.find({ text: /permissions/ })).toBeUndefined()
-  expect(await ui.find({ text: /before a plan/ })).toBeUndefined()
+  expect(await ui.find({ text: /REVIEWER · aconselhando/ })).toBeDefined()
+  expect(await ui.find({ text: /permissões/ })).toBeUndefined()
+  expect(await ui.find({ text: /antes do plano/ })).toBeUndefined()
   await ui.unmount()
 })
 
@@ -398,9 +398,9 @@ test('a consult whose start and result share one row closes, and its review flag
     })
     .catch(() => undefined)
   const ui = await $.ui.mount({ ...pane(64), surface: 'terminal' })
-  expect(await ui.find({ text: /ARCHITECT · on call/ })).toBeDefined()
-  expect(await ui.find({ text: /◆ before done/ })).toBeDefined()
-  expect(await ui.find({ text: /reviewing before done/ })).toBeUndefined()
+  expect(await ui.find({ text: /ARCHITECT · de plantão/ })).toBeDefined()
+  expect(await ui.find({ text: /◆ antes de concluir/ })).toBeDefined()
+  expect(await ui.find({ text: /revisando antes de concluir/ })).toBeUndefined()
   await ui.unmount()
 })
 
